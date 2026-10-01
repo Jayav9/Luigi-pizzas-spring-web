@@ -1,13 +1,18 @@
 package be.vdab.luigi.pizzas;
 
+import org.junit.jupiter.api.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +55,7 @@ class PizzaControllerTest {
         assertThat(response)
                 .hasStatusOk()
                 .bodyJson()
-              //  .extractingPath("id").isEqualTo(id);
+                //  .extractingPath("id").isEqualTo(id);
                 .satisfies(
                         json -> assertThat(json).extractingPath("id").isEqualTo(id),
                         json -> assertThat(json).extractingPath("naam").isEqualTo("test1"));
@@ -62,7 +67,7 @@ class PizzaControllerTest {
         assertThat(response).hasStatusOk()
                 .bodyJson()
                 .extractingPath("length()")
-    .isEqualTo(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE));
+                .isEqualTo(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE));
     }
 
     @Test
@@ -81,7 +86,7 @@ class PizzaControllerTest {
     void findByPrijsBetweenVindtDeJuistePizzas() {
         var response = mockMvcTester.get().uri("/pizzas")
                 .queryParam("vanPrijs", "10")
-    .queryParam("totPrijs", "20");
+                .queryParam("totPrijs", "20");
         assertThat(response)
                 .hasStatusOk()
                 .bodyJson()
@@ -100,5 +105,27 @@ class PizzaControllerTest {
         assertThat(response).hasStatusOk();
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
                 "id = " + id)).isZero();
+    }
+
+    @Test
+    void createVoegtDePizzaToe() throws Exception {
+        var jsonData = new ClassPathResource("correctPizza.json")
+                .getContentAsString(StandardCharsets.UTF_8);
+        var response = mockMvcTester.post().uri("/pizzas")
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                /*.content("""
+                        { 
+                        "naam": "test3", 
+                        "prijs": 3 
+                        } 
+                        """
+                );*/
+                        .content(jsonData );
+        assertThat(response)
+                .hasStatusOk()
+                .bodyJson().extractingPath("$").satisfies(nieuweId ->
+                        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                                "naam = 'test3' and id = " + nieuweId)).isOne());
+
     }
 }
