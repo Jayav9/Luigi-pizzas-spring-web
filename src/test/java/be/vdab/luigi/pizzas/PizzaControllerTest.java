@@ -35,4 +35,25 @@ class PizzaControllerTest {
                 .extractingPath("$")
                 .isEqualTo(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE));
     }
+
+    private int idVanTest1Pizza() {
+        return jdbcClient.sql("select id from pizzas where naam = 'test1'")
+                .query(Integer.class)
+                .single();
+    }
+
+    @Test
+    void findByIdMetEenBestaandeIdVindtDePizza() {
+        var id = idVanTest1Pizza();
+        var response = mockMvcTester.get()
+                .uri("/pizzas/{id}", id);
+        assertThat(response)
+                .hasStatusOk()
+                .bodyJson()
+              //  .extractingPath("id").isEqualTo(id);
+                .satisfies(
+                        json -> assertThat(json).extractingPath("id").isEqualTo(id),
+                        json -> assertThat(json).extractingPath("naam").isEqualTo("test1"));
+    }
+    
 }
