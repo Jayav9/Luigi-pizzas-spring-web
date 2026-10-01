@@ -3,6 +3,7 @@ package be.vdab.luigi.pizzas;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,5 +21,9 @@ public class PizzaService {
 
     Optional<Pizza> findById(long id) {
         return pizzaRepository.findById(id);
+    }
+
+    List<Pizza> findAll() {
+        return pizzaRepository.findAll();
     }
 }

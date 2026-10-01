@@ -55,5 +55,13 @@ class PizzaControllerTest {
                         json -> assertThat(json).extractingPath("id").isEqualTo(id),
                         json -> assertThat(json).extractingPath("naam").isEqualTo("test1"));
     }
-    
+
+    @Test
+    void findAllVindtAllePizzas() {
+        var response = mockMvcTester.get().uri("/pizzas");
+        assertThat(response).hasStatusOk()
+                .bodyJson()
+                .extractingPath("length()")
+    .isEqualTo(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE));
+    }
 }

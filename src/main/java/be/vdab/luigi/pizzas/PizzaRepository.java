@@ -3,6 +3,7 @@ package be.vdab.luigi.pizzas;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -34,6 +35,17 @@ where id = ?
                 .param(id)
                 .query(Pizza.class)
                 .optional();
+    }
+
+    List<Pizza> findAll() {
+        var sql = """ 
+          select id, naam, prijs, winst
+          from pizzas
+          order by naam;
+          """;
+        return jdbcClient.sql(sql)
+                .query(Pizza.class)
+                .list();
     }
 
 }
