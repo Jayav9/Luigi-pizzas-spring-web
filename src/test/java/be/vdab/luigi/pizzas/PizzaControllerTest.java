@@ -89,4 +89,16 @@ class PizzaControllerTest {
                 .isEqualTo(JdbcTestUtils.countRowsInTableWhere(
                         jdbcClient, PIZZAS_TABLE, "prijs between 10 and 20"));
     }
+
+
+    @Test
+    void deleteVerwijdertDePizza() {
+        var id = idVanTest1Pizza();
+        var response = mockMvcTester
+                .delete()
+                .uri("/pizzas/{id}", id);
+        assertThat(response).hasStatusOk();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "id = " + id)).isZero();
+    }
 }
