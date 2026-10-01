@@ -64,4 +64,29 @@ class PizzaControllerTest {
                 .extractingPath("length()")
     .isEqualTo(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE));
     }
+
+    @Test
+    void findByNaamBevatVindtDeJuistePizzas() {
+        var response = mockMvcTester.get().uri("/pizzas")
+                .queryParam("naamBevat", "test");
+        assertThat(response)
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("length()")
+                .isEqualTo(JdbcTestUtils.countRowsInTableWhere(
+                        jdbcClient, PIZZAS_TABLE, "naam like '%test%'"));
+    }
+
+    @Test
+    void findByPrijsBetweenVindtDeJuistePizzas() {
+        var response = mockMvcTester.get().uri("/pizzas")
+                .queryParam("vanPrijs", "10")
+    .queryParam("totPrijs", "20");
+        assertThat(response)
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("length()")
+                .isEqualTo(JdbcTestUtils.countRowsInTableWhere(
+                        jdbcClient, PIZZAS_TABLE, "prijs between 10 and 20"));
+    }
 }
