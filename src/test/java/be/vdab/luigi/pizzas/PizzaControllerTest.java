@@ -194,4 +194,15 @@ class PizzaControllerTest {
                 .content(verkeerdePrijs);
         assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    void eenPizzaToevoegenDieAlBestaatMislukt() throws Exception {
+        var jsonData = new ClassPathResource("pizzaDieAlBestaat.json")
+                .getContentAsString(StandardCharsets.UTF_8);
+        var response = mockMvcTester.post()
+                .uri("/pizzas")
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content(jsonData);
+        assertThat(response).hasStatus(HttpStatus.CONFLICT);
+    }
 }

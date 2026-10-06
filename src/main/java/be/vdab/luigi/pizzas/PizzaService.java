@@ -1,5 +1,6 @@
 package be.vdab.luigi.pizzas;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,12 +50,16 @@ public class PizzaService {
 
     @Transactional
     long create(NieuwePizza nieuwePizza) {
-        var winst = nieuwePizza.prijs().multiply(BigDecimal.valueOf(0.1));
-        var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
-       // return pizzaRepository.create(pizza);
-        var id = pizzaRepository.create(pizza);
-        prijsRepository.create(new Prijs(id, pizza.getPrijs(), LocalDateTime.now()));
-        return id;
+        try {
+            var winst = nieuwePizza.prijs().multiply(BigDecimal.valueOf(0.1));
+            var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
+            // return pizzaRepository.create(pizza);
+            var id = pizzaRepository.create(pizza);
+            prijsRepository.create(new Prijs(id, pizza.getPrijs(), LocalDateTime.now()));
+            return id;
+        } catch (DuplicateKeyException ex) {
+            throw new PizzaBestaatAlException(nieuwePizza.naam());
+        }
     }
     // How to POST multiple inputs at the same time from backend and reuse the create method above
     @Transactional

@@ -1,7 +1,9 @@
 "use strict";
-import {byId, toon, verberg} from "./util.js";
+//import {byId, toon, verberg} from "./util.js";
+import {byId, toon, verberg, setText} from "./util.js";
 byId("toevoegen").onclick = async () => {
-    verberg("naamFout", "prijsFout", "storing");
+    //verberg("naamFout", "prijsFout", "storing");
+    verberg("naamFout", "prijsFout", "storing", "conflict");
     const naamInput = byId("naam");
     if (! naamInput.checkValidity()) {
         toon("naamFout");
@@ -30,6 +32,13 @@ async function voegToe(pizza) {
     if (response.ok) {
         window.location = "allepizzas.html";
     } else {
-        toon("storing");
+       // toon("storing");
+        if (response.status === 409) {
+            const responseBody = await response.json();
+            setText("conflict", responseBody.message);
+            toon("conflict");
+        } else {
+            toon("storing");
+        }
     }
 }
