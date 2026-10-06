@@ -2,16 +2,18 @@ package be.vdab.luigi.pizzas;
 
 import org.junit.jupiter.api.MediaType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,7 +133,7 @@ class PizzaControllerTest {
 
     @Test
     void createMultipleVoegtAllePizzasToe() {
-        var response = mockMvcTester.post().uri("/pizzas/multiple")
+        var response = mockMvcTester.post().uri("/pizzasMultiple")
                 .contentType(String.valueOf(MediaType.APPLICATION_JSON))
                 .content("""
                         [
@@ -147,4 +149,20 @@ class PizzaControllerTest {
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
                 "naam in ('eerste', 'tweede')")).isEqualTo(2);
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"pizzaZonderNaam.json", "pizzaMetLegeNaam.json",
+            "pizzaZonderPrijs.json", "pizzaMetNegatievePrijs.json"})
+    void createMetVerkeerdeDataMislukt(String bestandsNaam) throws Exception {
+        var jsonData = new ClassPathResource(bestandsNaam)
+                .getContentAsString(StandardCharsets.UTF_8);
+        var response = mockMvcTester.post()
+                .uri("/pizzas")
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content(jsonData);
+        assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+
+    }
+
+
 }
