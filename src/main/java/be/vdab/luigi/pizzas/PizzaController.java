@@ -3,6 +3,7 @@ package be.vdab.luigi.pizzas;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -47,6 +48,7 @@ public class PizzaController {
     .stream()
     .map(pizza -> new IdNaamPrijs(pizza));
     }
+
     @GetMapping(value = "pizzas", params = "naamBevat")
     Stream<IdNaamPrijs> findByNaamBevat(String naamBevat) {
         return pizzaService.findByNaamBevat(naamBevat)
@@ -71,4 +73,14 @@ public class PizzaController {
         var id = pizzaService.create(nieuwePizza);
         return id;
     }
+
+
+// How to POST multiple inputs at the same time from backend
+    @PostMapping("pizzasMultiple")
+    List<Long>  createMultiple(@RequestBody List<NieuwePizza> nieuwePizzas) {
+   List<Long> ids = pizzaService.createAll(nieuwePizzas);
+        return ids;
+    }
+
+
 }

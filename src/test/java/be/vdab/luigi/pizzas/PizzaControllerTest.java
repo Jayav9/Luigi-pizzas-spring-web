@@ -128,4 +128,23 @@ class PizzaControllerTest {
                                 "naam = 'test3' and id = " + nieuweId)).isOne());
 
     }
+
+    @Test
+    void createMultipleVoegtAllePizzasToe() {
+        var response = mockMvcTester.post().uri("/pizzas/multiple")
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content("""
+                        [
+                          {"naam": "eerste", "prijs": 1},
+                          {"naam": "tweede", "prijs": 2}
+                        ]
+                        """);
+        assertThat(response)
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("length()")
+                .isEqualTo(2);
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "naam in ('eerste', 'tweede')")).isEqualTo(2);
+    }
 }

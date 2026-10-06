@@ -45,4 +45,11 @@ public class PizzaService {
         var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
         return pizzaRepository.create(pizza);
     }
+    // How to POST multiple inputs at the same time from backend and reuse the create method above
+    @Transactional
+    List<Long> createAll(List<NieuwePizza> nieuwePizzas) {
+        return nieuwePizzas.stream()
+                .map(this::create)
+                .toList();
+    }
 }
