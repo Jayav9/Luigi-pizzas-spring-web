@@ -26,6 +26,7 @@ class PizzaControllerTest {
     private final static String PIZZAS_TABLE = "pizzas";
     private final MockMvcTester mockMvcTester;
     private final JdbcClient jdbcClient;
+    private final static String PRIJZEN_TABLE = "prijzen";
 
     PizzaControllerTest(MockMvcTester mockMvcTester, JdbcClient jdbcClient) {
         this.mockMvcTester = mockMvcTester;
@@ -127,7 +128,8 @@ class PizzaControllerTest {
                 .hasStatusOk()
                 .bodyJson().extractingPath("$").satisfies(nieuweId ->
                         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
-                                "naam = 'test3' and id = " + nieuweId)).isOne());
+                                "naam = 'test3' and id = " + nieuweId)).isOne(),nieuweId -> assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient,
+                        PRIJZEN_TABLE, "prijs = 0.01 and pizzaId = " + nieuweId)).isOne());
 
     }
 
@@ -164,5 +166,32 @@ class PizzaControllerTest {
 
     }
 
-
+    @Test
+    void putWijzigtPrijsEnVoegtPrijsToe(){
+        var id = idVanTest1Pizza();
+        var response = mockMvcTester.put().uri("/pizzas/{id}/prijs", id)
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content("7.7");
+        assertThat(response).hasStatusOk();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "prijs = 7.7 and id = " + id)).isOne();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PRIJZEN_TABLE,
+                "prijs = 7.7 and pizzaId = " + id)).isOne();
+    }
+    @Test
+    void putVanOnbestaandePizzaMislukt(){
+        var response = mockMvcTester.put().uri("/pizzas/{id}/prijs", Long.MAX_VALUE)
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content("7.7");
+        assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {"", "-7"})
+    void putMetVerkeerdePrijsMislukt(String verkeerdePrijs) {
+        var id = idVanTest1Pizza();
+        var response = mockMvcTester.put().uri("/pizzas/{id}/prijs", id)
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content(verkeerdePrijs);
+        assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+    }
 }
