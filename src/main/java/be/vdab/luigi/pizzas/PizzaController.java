@@ -92,5 +92,18 @@ public class PizzaController {
         var prijs = new Prijs(id, nieuwePrijs, LocalDateTime.now());
         pizzaService.updatePrijs(prijs);
     }
+    private record PrijsVanaf(BigDecimal prijs, LocalDateTime vanaf) {
+        PrijsVanaf(Prijs prijs) {
+            this(prijs.getPrijs(), prijs.getVanaf());
+        }
+    }
+
+    @GetMapping("pizzas/{id}/prijzen")
+    Stream<PrijsVanaf> findPrijzen(@PathVariable long id) {
+        return pizzaService.findPrijzen(id)
+                .stream()
+                .map(prijs -> new PrijsVanaf(prijs));
+    }
+
 
 }

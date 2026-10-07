@@ -49,3 +49,10 @@ async function updatePrijs(nieuwePrijs) {
         toon("storing");
     }
 }
+byId("prijzen").onclick = () => {
+    const idEnNaam = {
+        id: Number(byId("zoekId").value),
+        naam: byId("naam").textContent
+    };
+    sessionStorage.setItem("idEnNaam", JSON.stringify(idEnNaam));
+};

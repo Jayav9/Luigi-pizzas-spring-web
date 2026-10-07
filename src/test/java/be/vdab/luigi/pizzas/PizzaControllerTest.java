@@ -205,4 +205,16 @@ class PizzaControllerTest {
                 .content(jsonData);
         assertThat(response).hasStatus(HttpStatus.CONFLICT);
     }
+
+    @Test
+    void findPrijzenVindtDeJuistePrijzen() {
+        var id = idVanTest1Pizza();
+        var response = mockMvcTester.get().uri("/pizzas/{id}/prijzen", id);
+        assertThat(response).hasStatusOk()
+                .bodyJson()
+                .extractingPath("length()")
+                .isEqualTo(JdbcTestUtils.countRowsInTableWhere(
+                        jdbcClient, PRIJZEN_TABLE, "pizzaId = " + id));
+    }
+
 }
