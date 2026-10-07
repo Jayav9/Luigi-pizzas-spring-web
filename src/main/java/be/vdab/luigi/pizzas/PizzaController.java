@@ -8,16 +8,17 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @RestController
+@RequestMapping("pizzas")
 public class PizzaController {
     private final PizzaService pizzaService;
     PizzaController(PizzaService pizzaService) {
         this.pizzaService = pizzaService;
     }
-    @GetMapping("pizzas/aantal")
+
+    @GetMapping("aantal")
     long findAantal() {
         return pizzaService.findAantal();
     }
@@ -34,7 +35,7 @@ public class PizzaController {
 
     }*/
 
-    @GetMapping("pizzas/{id}")
+    @GetMapping("{id}")
     IdNaamPrijs findById(@PathVariable long id) {
         return pizzaService.findById(id)
                 .map(pizza-> new IdNaamPrijs(pizza))
@@ -46,33 +47,34 @@ public class PizzaController {
             this(pizza.getId(), pizza.getNaam(), pizza.getPrijs());
         }
     }
-    @GetMapping("pizzas")
+
+    @GetMapping
     Stream<IdNaamPrijs> findAll() {
         return pizzaService.findAll()
     .stream()
     .map(pizza -> new IdNaamPrijs(pizza));
     }
 
-    @GetMapping(value = "pizzas", params = "naamBevat")
+    @GetMapping(params = "naamBevat")
     Stream<IdNaamPrijs> findByNaamBevat(String naamBevat) {
         return pizzaService.findByNaamBevat(naamBevat)
                 .stream()
                 .map(pizza -> new IdNaamPrijs(pizza));
     }
 
-    @GetMapping(value = "pizzas", params = {"vanPrijs", "totPrijs"})
+    @GetMapping( params = {"vanPrijs", "totPrijs"})
     Stream<IdNaamPrijs> findByPrijsTussen(BigDecimal vanPrijs,BigDecimal totPrijs){
         return pizzaService.findByPrijsTussen(vanPrijs, totPrijs)
                 .stream()
                 .map(pizza -> new IdNaamPrijs(pizza));
     }
 
-    @DeleteMapping("pizzas/{id}")
+    @DeleteMapping("{id}")
     void delete(@PathVariable long id) {
         pizzaService.delete(id);
     }
 
-    @PostMapping("pizzas")
+    @PostMapping
     long create(@RequestBody @Valid NieuwePizza nieuwePizza) {
         var id = pizzaService.create(nieuwePizza);
         return id;
@@ -86,7 +88,7 @@ public class PizzaController {
         return ids;
     }
 
-    @PutMapping("pizzas/{id}/prijs")
+    @PutMapping("{id}/prijs")
     void updatePrijs(@PathVariable long id,
                      @RequestBody @NotNull @PositiveOrZero BigDecimal nieuwePrijs) {
         var prijs = new Prijs(id, nieuwePrijs, LocalDateTime.now());
@@ -98,7 +100,7 @@ public class PizzaController {
         }
     }
 
-    @GetMapping("pizzas/{id}/prijzen")
+    @GetMapping("{id}/prijzen")
     Stream<PrijsVanaf> findPrijzen(@PathVariable long id) {
         return pizzaService.findPrijzen(id)
                 .stream()
