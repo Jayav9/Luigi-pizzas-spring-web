@@ -46,6 +46,9 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
         cache: 'maven' # Automatically caches ~/.m2 repository for speed
+ 
+    - name: Initialize database
+      run: mysql -h 127.0.0.1 -P 3306 -u root -proot < db/luigi.sql
 
   
     - name: Build with Maven
