@@ -19,6 +19,23 @@ jobs:
       contents: read
       packages: write
 
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: luigi
+          MYSQL_USER: cursist
+          MYSQL_PASSWORD: cursist
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 25
@@ -29,6 +46,9 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
         cache: 'maven' # Automatically caches ~/.m2 repository for speed
+ 
+    - name: Initialize database
+      run: mysql -h 127.0.0.1 -P 3306 -u root -proot < src/test/resources/luigi.sql
 
   
     - name: Build with Maven
