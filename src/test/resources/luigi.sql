@@ -7,7 +7,7 @@ use luigi;
 
 create table pizzas (
   id int unsigned not null auto_increment primary key,
-  naam varchar(50) not null,
+  naam varchar(50) not null unique,
   prijs decimal(10,2) not null,
   winst decimal(10,2)
 );
