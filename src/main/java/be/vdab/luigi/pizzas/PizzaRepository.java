@@ -14,6 +14,7 @@ import java.util.Optional;
 public class PizzaRepository {
 
     private final JdbcClient jdbcClient;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public PizzaRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
