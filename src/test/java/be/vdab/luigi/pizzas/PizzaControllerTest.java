@@ -135,7 +135,7 @@ class PizzaControllerTest {
 
     @Test
     void createMultipleVoegtAllePizzasToe() {
-        var response = mockMvcTester.post().uri("/pizzasMultiple")
+        var response = mockMvcTester.post().uri("/pizzas/pizzasMultiple")
                 .contentType(String.valueOf(MediaType.APPLICATION_JSON))
                 .content("""
                         [
